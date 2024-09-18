@@ -2,10 +2,9 @@
 # Rat Gen
 # Unit 1 Lab 1
 
-from math import ceil
 from random import triangular, uniform, choice, random, shuffle
 from rat import Rat
-import time
+import time, math
 
 GOAL = 50000                # Target average weight (grams)
 NUM_RATS = 20               # Max adult rats in the lab
@@ -59,7 +58,7 @@ def mutate(pups):
     for ind in range(len(pups)):
         for pup in pups[ind]:
           if random() <= MUTATE_ODDS:
-              pup.setWeight(ceil(pup.getWeight()*uniform(MUTATE_MIN, MUTATE_MAX)))
+              pup.setWeight(math.ceil(pup.getWeight()*uniform(MUTATE_MIN, MUTATE_MAX)))
     return pups  
 
 
