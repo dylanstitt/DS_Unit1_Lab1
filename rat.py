@@ -6,7 +6,7 @@ class Rat:
         self.litters = 0
 
     def __str__(self):
-        return f'This {self.sex} rat is {self.weight}g and has breeded {self.litters} times'
+        return f'This {self.sex} rat is {self.weight}g and has bred {self.litters} times'
 
     def __repr__(self):
         return f'{self.weight}g'
@@ -34,6 +34,9 @@ class Rat:
 
     def setWeight(self, wt):
         self.weight = wt
+
+    def addLitter(self):
+        self.litters += 1
 
     def canBreed(self):
         return self.litters < 5

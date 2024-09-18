@@ -3,7 +3,7 @@
 # Unit 1 Lab 1
 
 from math import ceil
-from random import triangular, uniform, choice, random
+from random import triangular, uniform, choice, random, shuffle
 from rat import Rat
 import time
 
@@ -43,43 +43,37 @@ def initial_population():
 def calculate_weight(sex, mother, father):
     """Generate the weight of a single rat"""
     
-    if mother.getWeight() > father.getWeight():
+    if mother > father:
         min = father.getWeight()
         max = mother.getWeight()
     else:
         max = father.getWeight()
-        min = mother.getWeight()    
+        min = mother.getWeight()
 
-    if sex == "M":
-        wt = int(triangular(min, max, max))
-    else:
-        wt = int(triangular(min, max, min))
-
-    return wt
+    # Return the weight closer to male if male
+    return int(triangular(min, max, max)) if sex == "M" else int(triangular(min, max, min))
 
 
 def mutate(pups):
     """Check for mutability, modify weight of affected pups"""
-    
     for ind in range(len(pups)):
         for pup in pups[ind]:
-          odds = random()
-          if odds <= MUTATE_ODDS:
-            pup.setWeight(ceil(pup.getWeight()*uniform(MUTATE_MIN, MUTATE_MAX))) 
+          if random() <= MUTATE_ODDS:
+              pup.setWeight(ceil(pup.getWeight()*uniform(MUTATE_MIN, MUTATE_MAX)))
     return pups  
 
 
 def breed(rats):
     """Create mating pairs, create LITTER_SIZE children per pair"""
     children = [[], []]
-    rats[0] = sorted(rats[0], key=lambda x: random())
-    rats[1] = sorted(rats[1], key=lambda x: random())
+    shuffle(rats[0])
+    shuffle(rats[1])
     
     for i in range(10):
         mother = rats[1][i]
         father = rats[0][i]
-        mother.litters += 1
-        father.litters += 1
+        mother.addLitter()
+        father.addLitter()
         for j in range(LITTER_SIZE):
             sex = choice(['M', 'F'])
             wt = calculate_weight(sex, mother, father)
@@ -97,6 +91,7 @@ def select(allRats, currentLargest):
     rats = [[], []]
 
     for ind in range(len(allRats)):
+        # Sort rats by greatest -> least heavy
         r = sorted(allRats[ind], key=lambda x: x.getWeight())[::-1]
         
         for rat in r:
@@ -111,10 +106,9 @@ def select(allRats, currentLargest):
 
 def calculate_mean(rats):
     """Calculate the mean weight of a population"""
-    sumWt1 = [i.getWeight() for i in rats[1]]
-    sumWt2 = [i.getWeight() for i in rats[0]]
-    sumWt = sum([sum(sumWt1), sum(sumWt2)])
-    return sumWt // NUM_RATS
+    sumWt1 = sum([i.getWeight() for i in rats[0]])
+    sumWt2 = sum([i.getWeight() for i in rats[1]])
+    return sum([sumWt1, sumWt2]) // NUM_RATS
 
 
 def fitness(rats):
@@ -143,27 +137,19 @@ def report(gens, largest, t, avg):
 def main():
     start = time.time()
     rats = initial_population()
-    gens = 0
-    largest = 0
+    gens, largest = 0, 0
     avg = []
-    breeding = True
 
-    while gens < GENERATION_LIMIT and breeding:
+    while gens < GENERATION_LIMIT and not fitness(rats)[0]:
         gens += 1
 
         litter, parents = breed(rats)
         litter = mutate(litter)
-        
-        for i in range(2):
-            for p in parents[i]:
-                litter[i].append(p)
+        litter[0].extend(parents[0])
+        litter[1].extend(parents[1])
 
         rats, largest = select(litter, largest)
-
-        fit = fitness(rats)
-        avg.append(fit[1])
-        if fit[0]:
-            breeding = False
+        avg.append(fitness(rats)[1])
 
     end = time.time()
     report(gens, largest, round(end-start, 4), avg)
