@@ -93,7 +93,7 @@ def breed(rats):
 
 
 def select(allRats, currentLargest):
-    '''Choose the largest viable rats for the next round of breeding'''
+    """Choose the largest viable rats for the next round of breeding"""
     rats = [[], []]
 
     for ind in range(len(allRats)):
@@ -110,7 +110,7 @@ def select(allRats, currentLargest):
 
 
 def calculate_mean(rats):
-    '''Calculate the mean weight of a population'''
+    """Calculate the mean weight of a population"""
     sumWt1 = [i.getWeight() for i in rats[1]]
     sumWt2 = [i.getWeight() for i in rats[0]]
     sumWt = sum([sum(sumWt1), sum(sumWt2)])
